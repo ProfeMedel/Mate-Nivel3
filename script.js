@@ -110,7 +110,7 @@
             {
                 category: "mult",
                 topic: "Multiplicación como Arreglo",
-                question: "Hay 4 filas con 3 ordenadores cada una. ¿Cuántos hay en total?",
+                question: "Hay 4 filas con 3 computadores cada una. ¿Cuántos hay en total?",
                 type: "multiplication-visual",
                 groups: 4, itemsPerGroup: 3,
                 icon: "fa-laptop text-blue-500",
