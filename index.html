@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Mate-Aventura 3° Nivel</title>
+    <link rel="icon" type="image/png" href="images/senda.png">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js">
+  </script>
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <!-- Google Fonts: Fredoka & Quicksand -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&amp;family=Quicksand:wght@600;700&amp;display=swap" rel="stylesheet"/>
+  <link href="styles.css" rel="stylesheet"/>
+ </head>
+ <body class="p-3 sm:p-6 text-slate-800 select-none flex flex-col justify-between items-center">
+  <!-- Encabezado / Barra Superior -->
+  <header class="w-full max-w-4xl bg-white/90 backdrop-blur-md rounded-3xl p-4 shadow-xl border-4 border-yellow-300 flex flex-wrap justify-between items-center gap-3 mb-4">
+   <div class="flex items-center gap-3">
+    <div class="bg-yellow-400 p-3 rounded-2xl text-yellow-950 shadow-md">
+     <i class="fa-solid fa-shapes text-3xl">
+     </i>
+    </div>
+    <div>
+     <h1 class="text-2xl sm:text-3xl font-extrabold text-purple-700 tracking-wide">
+      AVENTURAS MATEMÁTICAS
+     </h1>
+     <p class="text-xs sm:text-sm text-emerald-700 font-bold">
+      3° Nivel • Colegio Senda Del Saber
+     </p>
+    </div>
+   </div>
+   <!-- Indicadores de Juego -->
+   <div class="flex items-center gap-3 sm:gap-4 bg-purple-100 px-4 py-2 rounded-2xl border-2 border-purple-300">
+    <div class="flex items-center gap-2">
+     <i class="fa-solid fa-star text-yellow-400 text-2xl sm:text-3xl drop-shadow">
+     </i>
+     <span class="text-2xl sm:text-3xl font-extrabold text-purple-800 font-num" id="score-display">
+      0
+     </span>
+    </div>
+    <div class="h-8 w-0.5 bg-purple-300">
+    </div>
+    <div class="flex items-center gap-1 text-purple-800 font-bold text-sm sm:text-base">
+     <span>
+      Ronda:
+     </span>
+     <span class="font-num text-lg" id="round-progress">
+      1/10
+     </span>
+    </div>
+   </div>
+  </header>
+  <!-- Selector de Categorías / Modo de Juego -->
+  <nav class="w-full max-w-4xl mb-4">
+   <div class="grid grid-cols-2 sm:grid-cols-5 gap-2" id="category-selector">
+    <button class="cat-btn bg-purple-600 text-white font-bold py-2 px-3 rounded-2xl text-xs sm:text-sm shadow border-b-4 border-purple-800 transition-all flex items-center justify-center gap-1.5" id="cat-all" onclick="setCategory('all')">
+     <i class="fa-solid fa-dice">
+     </i>
+     Todos
+    </button>
+    <button class="cat-btn bg-white hover:bg-yellow-50 text-slate-700 font-bold py-2 px-3 rounded-2xl text-xs sm:text-sm shadow border-b-4 border-slate-300 transition-all flex items-center justify-center gap-1.5" id="cat-place" onclick="setCategory('place')">
+     <i class="fa-solid fa-cubes text-yellow-500">
+     </i>
+     Bloques / Posición
+    </button>
+    <button class="cat-btn bg-white hover:bg-emerald-50 text-slate-700 font-bold py-2 px-3 rounded-2xl text-xs sm:text-sm shadow border-b-4 border-slate-300 transition-all flex items-center justify-center gap-1.5" id="cat-addsub" onclick="setCategory('addsub')">
+     <i class="fa-solid fa-plus-minus text-emerald-500">
+     </i>
+     Sumas y Restas
+    </button>
+    <button class="cat-btn bg-white hover:bg-blue-50 text-slate-700 font-bold py-2 px-3 rounded-2xl text-xs sm:text-sm shadow border-b-4 border-slate-300 transition-all flex items-center justify-center gap-1.5" id="cat-mult" onclick="setCategory('mult')">
+     <i class="fa-solid fa-xmark text-blue-500">
+     </i>
+     Multiplicar
+    </button>
+    <button class="cat-btn bg-white hover:bg-pink-50 text-slate-700 font-bold py-2 px-3 rounded-2xl text-xs sm:text-sm shadow border-b-4 border-slate-300 transition-all flex items-center justify-center gap-1.5 col-span-2 sm:col-span-1" id="cat-patterns" onclick="setCategory('patterns')">
+     <i class="fa-solid fa-chart-line text-pink-500">
+     </i>
+     Patrones
+    </button>
+   </div>
+  </nav>
+  <!-- Barra de Progreso de la Ronda -->
+  <div class="w-full max-w-4xl bg-white/70 rounded-full h-3.5 mb-4 p-0.5 overflow-hidden shadow-inner">
+   <div class="bg-gradient-to-r from-yellow-400 to-emerald-400 h-full rounded-full transition-all duration-300" id="progress-bar" style="width: 10%;">
+   </div>
+  </div>
+  <!-- Área Principal del Juego -->
+  <main class="w-full max-w-4xl flex-grow flex flex-col items-center justify-center relative">
+   <!-- Tarjeta de Pregunta -->
+   <div class="w-full bg-white rounded-3xl p-5 sm:p-7 shadow-2xl border-4 border-purple-400 relative mb-5 pop-in" id="question-card">
+    <!-- Botón de Audio para Lectura en Voz Alta -->
+    <button class="absolute -top-5 right-6 bg-amber-400 hover:bg-amber-500 text-amber-950 p-4 rounded-full shadow-lg border-4 border-white transition-all transform hover:scale-110 pulse-audio flex items-center justify-center" id="btn-speak" onclick="speakCurrentQuestion()" title="Escuchar en voz alta">
+     <i class="fa-solid fa-volume-high text-2xl">
+     </i>
+    </button>
+    <!-- Categoría Actual -->
+    <div class="inline-block bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full text-xs sm:text-sm mb-3">
+     <i class="fa-solid fa-bookmark mr-1">
+     </i>
+     <span id="topic-tag">
+      Cargando...
+     </span>
+    </div>
+    <!-- Enunciado de la Pregunta -->
+    <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-800 mb-4 text-center leading-snug" id="question-text">
+     Cargando...
+    </h2>
+    <!-- Representación Visual (Bloques, Emojis, Esquemas) -->
+    <div class="my-3 p-4 bg-sky-50 rounded-2xl border-2 border-dashed border-sky-300 flex flex-wrap items-center justify-center gap-3 min-h-[110px] max-h-[230px] overflow-y-auto" id="visual-container">
+     <!-- Generado dinámicamente -->
+    </div>
+   </div>
+   <!-- 5 Opciones de Respuesta -->
+   <div class="w-full grid grid-cols-1 sm:grid-cols-5 gap-3 mb-4" id="options-container">
+    <!-- 5 botones renderizados por JS -->
+   </div>
+   <!-- Mensaje de Feedback -->
+   <div class="h-12 flex items-center justify-center text-center text-xl font-extrabold transition-all duration-300" id="feedback-box">
+    <span class="text-purple-600 animate-pulse">
+     ¡Elige la opción correcta!
+    </span>
+   </div>
+  </main>
+  <!-- Modal de Resumen al Finalizar Ronda -->
+  <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden" id="summary-modal">
+   <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border-4 border-yellow-400 shadow-2xl text-center pop-in">
+    <div class="text-6xl text-yellow-400 mb-3">
+     <i class="fa-solid fa-trophy">
+     </i>
+    </div>
+    <h3 class="text-3xl font-extrabold text-purple-800 mb-2">
+     ¡Ronda Completada!
+    </h3>
+    <p class="text-slate-600 font-bold mb-4">
+     Has terminado tus 10 ejercicios.
+    </p>
+    <div class="bg-purple-50 rounded-2xl p-4 mb-6 border-2 border-purple-200">
+     <div class="text-sm text-purple-700 font-bold">
+      Puntaje Final de la Ronda
+     </div>
+     <div class="text-5xl font-extrabold text-purple-900 font-num my-1" id="modal-score">
+      100
+     </div>
+     <div class="text-sm font-bold text-emerald-600 mt-2" id="modal-feedback">
+      ¡Eres un/a genio/a de las matemáticas!
+     </div>
+    </div>
+    <button class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xl py-3 px-6 rounded-2xl border-b-4 border-emerald-700 shadow-lg bounce-hover flex items-center justify-center gap-2" onclick="startNewRound()">
+     <i class="fa-solid fa-play">
+     </i>
+     ¡Jugar Otra Ronda!
+    </button>
+   </div>
+  </div>
+  <!-- Pie de página -->
+  <footer class="w-full max-w-4xl flex justify-between items-center mt-3 px-2">
+   <button class="bg-white hover:bg-gray-100 text-gray-700 font-bold py-2 px-4 rounded-xl text-xs sm:text-sm border border-gray-300 shadow-sm transition-all flex items-center gap-2" onclick="restartGame()">
+    <i class="fa-solid fa-rotate-right">
+    </i>
+    Reiniciar Juego
+   </button>
+   <span class="text-xs text-slate-700 font-bold bg-white/70 px-3 py-1 rounded-full">
+    Chile • Currículum MINEDUC • MM-2026
+   </span>
+  </footer>
+  <script defer="True" src="script.js">
+  </script>
+ </body>
+</html>
+
